@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/city.dart';
 import 'preferences_repository.dart';
 
 class SharedPreferencesRepository implements PreferencesRepository {
@@ -14,20 +17,59 @@ class SharedPreferencesRepository implements PreferencesRepository {
   Future<String?> readLauncher() async => preferences.getString('launcher');
 
   @override
-  Future<String?> readCurrentCityId() async => preferences.getString('current_city');
+  Future<String?> readCurrentCityId() async =>
+      preferences.getString('current_city');
 
   @override
-  Future<List<String>> readFavoriteCityIds() async => preferences.getStringList('favorite_cities') ?? const [];
+  Future<List<String>> readFavoriteCityIds() async =>
+      preferences.getStringList('favorite_cities') ?? const [];
 
   @override
-  Future<void> writeLanguage(String languageCode) async => preferences.setString('language', languageCode);
+  Future<List<City>> readFavoriteCities() async {
+    final encodedCities =
+        preferences.getStringList('favorite_city_data') ?? const [];
+    return encodedCities.map((encodedCity) {
+      final city = jsonDecode(encodedCity) as Map<String, dynamic>;
+      return City(
+        id: city['id'] as String,
+        name: city['name'] as String,
+        country: city['country'] as String,
+        latitude: (city['latitude'] as num).toDouble(),
+        longitude: (city['longitude'] as num).toDouble(),
+      );
+    }).toList();
+  }
 
   @override
-  Future<void> writeLauncher(String launcherId) async => preferences.setString('launcher', launcherId);
+  Future<void> writeLanguage(String languageCode) async =>
+      preferences.setString('language', languageCode);
 
   @override
-  Future<void> writeCurrentCityId(String cityId) async => preferences.setString('current_city', cityId);
+  Future<void> writeLauncher(String launcherId) async =>
+      preferences.setString('launcher', launcherId);
 
   @override
-  Future<void> writeFavoriteCityIds(List<String> cityIds) async => preferences.setStringList('favorite_cities', cityIds);
+  Future<void> writeCurrentCityId(String cityId) async =>
+      preferences.setString('current_city', cityId);
+
+  @override
+  Future<void> writeFavoriteCityIds(List<String> cityIds) async =>
+      preferences.setStringList('favorite_cities', cityIds);
+
+  @override
+  Future<void> writeFavoriteCities(List<City> cities) async =>
+      preferences.setStringList(
+        'favorite_city_data',
+        cities
+            .map(
+              (city) => jsonEncode({
+                'id': city.id,
+                'name': city.name,
+                'country': city.country,
+                'latitude': city.latitude,
+                'longitude': city.longitude,
+              }),
+            )
+            .toList(),
+      );
 }
