@@ -1,30 +1,60 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:meteodex/core/preferences/shared_preferences_repository.dart';
 import 'package:meteodex/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-await tester.pumpWidget(const MeteoDexApp());
+  testWidgets('retro weather screen remains available', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    await tester.pumpWidget(MeteoDexApp(preferences: SharedPreferencesRepository(preferences)));
+    await tester.pump(const Duration(milliseconds: 500));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('METEODEX v1.0'), findsWidgets);
+    expect(find.text('Madrid'), findsOneWidget);
+    expect(find.text('28 C'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('weather glyph advances its animation', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    await tester.pumpWidget(MeteoDexApp(preferences: SharedPreferencesRepository(preferences)));
+    await tester.pump(const Duration(milliseconds: 500));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    final customPaint = tester.widget<CustomPaint>(find.byType(CustomPaint).first);
+    final painter = customPaint.painter! as PixelWeatherPainter;
+    final initialProgress = painter.progress;
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(painter.progress, isNot(initialProgress));
+  });
+
+  testWidgets('language changes without restarting the app', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({'language': 'en'});
+    final preferences = await SharedPreferences.getInstance();
+    await tester.pumpWidget(MeteoDexApp(preferences: SharedPreferencesRepository(preferences)));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('SETTINGS'), findsWidgets);
+    expect(find.text('WEATHER'), findsWidgets);
+  });
+
+  testWidgets('city search updates the selected location', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    await tester.pumpWidget(MeteoDexApp(preferences: SharedPreferencesRepository(preferences)));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    await tester.tap(find.text('Buscar ciudad'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.enterText(find.byType(TextField), 'Tokyo');
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.widgetWithText(ListTile, 'Tokyo'));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Tokyo'), findsWidgets);
   });
 }
