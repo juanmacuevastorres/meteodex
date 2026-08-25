@@ -51,7 +51,7 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.text('SETTINGS'), findsWidgets);
+    expect(find.text('OPTIONS'), findsWidgets);
     expect(find.text('WEATHER'), findsWidgets);
   });
 

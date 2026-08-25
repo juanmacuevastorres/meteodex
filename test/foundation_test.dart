@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meteodex/cities/city_repository.dart';
 import 'package:meteodex/core/localization/app_copy.dart';
 import 'package:meteodex/core/models/city.dart';
+import 'package:meteodex/core/themes/theme_models.dart';
+import 'package:meteodex/core/themes/theme_rule_resolver.dart';
 import 'package:meteodex/weather/models/weather.dart';
 import 'package:meteodex/weather/weather_repository.dart';
 import 'package:meteodex/weather/weather_source.dart';
@@ -64,5 +66,73 @@ void main() {
     await cachedRepository.load(cityId: 'madrid', latitude: 0, longitude: 0);
     final stale = await cachedRepository.load(cityId: 'madrid', latitude: 0, longitude: 0, now: DateTime(2026, 8, 23, 2));
     expect(stale.state, WeatherLoadState.stale);
+  });
+
+  test('custom theme parses assets and resolves Celsius weather rules', () {
+    final theme = CustomTheme.fromMap({
+      'version': 1,
+      'id': 'sample',
+      'name': 'Sample',
+      'visual': {
+        'backgroundColor': '#101820',
+        'surfaceColor': '#203040',
+        'textColor': '#FFFFFF',
+        'accentColor': '#FFCC00',
+      },
+      'assets': {
+        'hot': {'path': 'images/hot.gif', 'type': 'gif'},
+        'cool': {'path': 'images/cool.png', 'type': 'png'},
+      },
+      'weatherRules': [
+        {'condition': 'sunny', 'minTemperature': 40, 'asset': 'hot'},
+        {'condition': 'sunny', 'maxTemperature': 39, 'asset': 'cool'},
+      ],
+    });
+
+    final weather = CurrentWeather(
+      city: 'Madrid',
+      temperatureCelsius: 40,
+      condition: WeatherCondition.sunny,
+      updatedAt: DateTime(2026, 8, 23),
+    );
+    expect(resolveThemeRule(theme, weather)?.assetId, 'hot');
+  });
+
+  test('custom theme rejects unsafe assets and ambiguous rules', () {
+    expect(
+      () => CustomTheme.fromMap({
+        'version': 1,
+        'id': 'unsafe',
+        'name': 'Unsafe',
+        'visual': {
+          'backgroundColor': '#101820',
+          'surfaceColor': '#203040',
+          'textColor': '#FFFFFF',
+          'accentColor': '#FFCC00',
+        },
+        'assets': {'bad': {'path': '../bad.gif', 'type': 'gif'}},
+        'weatherRules': [],
+      }),
+      throwsFormatException,
+    );
+    expect(
+      () => CustomTheme.fromMap({
+        'version': 1,
+        'id': 'overlap',
+        'name': 'Overlap',
+        'visual': {
+          'backgroundColor': '#101820',
+          'surfaceColor': '#203040',
+          'textColor': '#FFFFFF',
+          'accentColor': '#FFCC00',
+        },
+        'assets': {'one': {'path': 'one.png', 'type': 'png'}},
+        'weatherRules': [
+          {'condition': 'sunny', 'minTemperature': 20, 'asset': 'one'},
+          {'condition': 'sunny', 'minTemperature': 25, 'asset': 'one'},
+        ],
+      }),
+      throwsFormatException,
+    );
   });
 }

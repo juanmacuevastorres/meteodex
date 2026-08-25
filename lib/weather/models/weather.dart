@@ -1,4 +1,4 @@
-enum WeatherCondition { sunny, rain, snow, cloudy, unknown }
+enum WeatherCondition { sunny, rain, snow, cloudy, thunderstorm, unknown }
 
 enum WeatherLoadState { loading, success, stale, empty, error }
 

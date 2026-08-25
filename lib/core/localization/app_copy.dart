@@ -27,6 +27,7 @@ class AppCopy {
 
   String get weatherTab => _text('weatherTab');
   String get settingsTab => _text('settingsTab');
+  String get optionsTitle => _text('optionsTitle');
   String get title => _text('title');
   String get location => _text('location');
   String get condition => _text('condition');
@@ -39,6 +40,11 @@ class AppCopy {
   String get searchCity => _text('searchCity');
   String get noResults => _text('noResults');
   String get unavailable => _text('unavailable');
+  String get temperatureUnit => _text('temperatureUnit');
+  String get celsius => _text('celsius');
+  String get fahrenheit => _text('fahrenheit');
+  String get customThemes => _text('customThemes');
+  String get importTheme => _text('importTheme');
 
   String weather(WeatherCondition condition) => _text(condition.name);
 
@@ -46,25 +52,29 @@ class AppCopy {
 
   static const _catalog = <String, Map<String, String>>{
     'es': {
-      'weatherTab': 'TIEMPO', 'settingsTab': 'AJUSTES', 'title': 'METEODEX v1.0',
+      'weatherTab': 'TIEMPO', 'settingsTab': 'OPCIONES', 'optionsTitle': 'OPCIONES', 'title': 'METEODEX v1.0',
       'location': 'CIUDAD ACTUAL', 'condition': 'CONDICION', 'temperature': 'TEMPERATURA',
       'settingsTitle': 'AJUSTES', 'language': 'IDIOMA', 'chooseLanguage': 'Selecciona un idioma',
       'launcher': 'LANZADOR', 'favorites': 'FAVORITOS', 'searchCity': 'Buscar ciudad',
       'noResults': 'No se encontraron ciudades', 'unavailable': 'Datos no disponibles',
-      'sunny': 'SOLEADO', 'rain': 'LLUVIA', 'snow': 'NIEVE', 'cloudy': 'NUBLADO', 'unknown': 'DESCONOCIDO',
+      'temperatureUnit': 'UNIDAD DE TEMPERATURA', 'celsius': 'Celsius', 'fahrenheit': 'Fahrenheit',
+      'customThemes': 'TEMAS PROPIOS', 'importTheme': 'Importar tu tema',
+      'sunny': 'SOLEADO', 'rain': 'LLUVIA', 'snow': 'NIEVE', 'cloudy': 'NUBLADO', 'thunderstorm': 'TORMENTA', 'unknown': 'DESCONOCIDO',
     },
     'es-419': {
-      'weatherTab': 'TIEMPO', 'settingsTab': 'AJUSTES', 'title': 'METEODEX v1.0', 'location': 'CIUDAD ACTUAL',
+      'weatherTab': 'TIEMPO', 'settingsTab': 'OPCIONES', 'optionsTitle': 'OPCIONES', 'title': 'METEODEX v1.0', 'location': 'CIUDAD ACTUAL',
       'condition': 'CONDICION', 'temperature': 'TEMPERATURA', 'settingsTitle': 'AJUSTES', 'language': 'IDIOMA',
       'chooseLanguage': 'Elige un idioma', 'launcher': 'LANZADOR', 'favorites': 'FAVORITOS', 'searchCity': 'Buscar ciudad',
-      'noResults': 'No se encontraron ciudades', 'unavailable': 'Datos no disponibles', 'sunny': 'SOLEADO',
+      'noResults': 'No se encontraron ciudades', 'unavailable': 'Datos no disponibles', 'sunny': 'SOLEADO', 'thunderstorm': 'TORMENTA',
+      'temperatureUnit': 'UNIDAD DE TEMPERATURA', 'celsius': 'Celsius', 'fahrenheit': 'Fahrenheit', 'customThemes': 'TEMAS PROPIOS', 'importTheme': 'Importar tu tema',
       'rain': 'LLUVIA', 'snow': 'NIEVE', 'cloudy': 'NUBLADO', 'unknown': 'DESCONOCIDO',
     },
     'en': {
-      'weatherTab': 'WEATHER', 'settingsTab': 'SETTINGS', 'title': 'METEODEX v1.0', 'location': 'CURRENT CITY',
+      'weatherTab': 'WEATHER', 'settingsTab': 'OPTIONS', 'optionsTitle': 'OPTIONS', 'title': 'METEODEX v1.0', 'location': 'CURRENT CITY',
       'condition': 'CONDITION', 'temperature': 'TEMPERATURE', 'settingsTitle': 'SETTINGS', 'language': 'LANGUAGE',
       'chooseLanguage': 'Choose a language', 'launcher': 'LAUNCHER', 'favorites': 'FAVORITES', 'searchCity': 'Search city',
-      'noResults': 'No cities found', 'unavailable': 'Data unavailable', 'sunny': 'SUNNY', 'rain': 'RAIN',
+      'noResults': 'No cities found', 'unavailable': 'Data unavailable', 'sunny': 'SUNNY', 'thunderstorm': 'THUNDERSTORM', 'rain': 'RAIN',
+      'temperatureUnit': 'TEMPERATURE UNIT', 'celsius': 'Celsius', 'fahrenheit': 'Fahrenheit', 'customThemes': 'CUSTOM THEMES', 'importTheme': 'Import your theme',
       'snow': 'SNOW', 'cloudy': 'CLOUDY', 'unknown': 'UNKNOWN',
     },
     'ja': {'weatherTab': 'てんき', 'settingsTab': 'せってい', 'title': 'メテオデックス', 'location': 'げんざいち', 'condition': 'じょうたい', 'temperature': 'おんど', 'settingsTitle': 'せってい', 'language': 'げんご', 'chooseLanguage': 'げんごをえらぶ', 'launcher': 'ランチャー', 'favorites': 'お気に入り', 'searchCity': '都市を検索', 'noResults': '都市が見つかりません', 'unavailable': 'データなし', 'sunny': 'はれ', 'rain': 'あめ', 'snow': 'ゆき', 'cloudy': 'くもり', 'unknown': 'ふめい'},

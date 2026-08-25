@@ -73,6 +73,7 @@ class MeteoDexApp extends StatefulWidget {
 class _MeteoDexAppState extends State<MeteoDexApp> {
   SupportedLanguage _language = SupportedLanguage.castilianSpanish;
   String _launcherId = 'retro';
+  TemperatureUnit _temperatureUnit = TemperatureUnit.celsius;
 
   @override
   void initState() {
@@ -87,10 +88,15 @@ class _MeteoDexAppState extends State<MeteoDexApp> {
     final launcherId = LauncherCatalog.byId(
       await widget.preferences.readLauncher(),
     ).id;
+    final temperatureUnit = (await widget.preferences.readTemperatureUnit()) ==
+            TemperatureUnit.fahrenheit.name
+        ? TemperatureUnit.fahrenheit
+        : TemperatureUnit.celsius;
     if (!mounted) return;
     setState(() {
       _language = language;
       _launcherId = launcherId;
+      _temperatureUnit = temperatureUnit;
     });
   }
 
@@ -103,6 +109,11 @@ class _MeteoDexAppState extends State<MeteoDexApp> {
     final launcher = LauncherCatalog.byId(launcherId);
     setState(() => _launcherId = launcher.id);
     await widget.preferences.writeLauncher(launcher.id);
+  }
+
+  Future<void> _changeTemperatureUnit(TemperatureUnit unit) async {
+    setState(() => _temperatureUnit = unit);
+    await widget.preferences.writeTemperatureUnit(unit.name);
   }
 
   @override
@@ -123,6 +134,8 @@ class _MeteoDexAppState extends State<MeteoDexApp> {
         weatherSource: widget.weatherSource,
         onLanguageChanged: _changeLanguage,
         onLauncherChanged: _changeLauncher,
+        temperatureUnit: _temperatureUnit,
+        onTemperatureUnitChanged: _changeTemperatureUnit,
       ),
     );
   }
@@ -137,6 +150,8 @@ class AppShell extends StatelessWidget {
     required this.weatherSource,
     required this.onLanguageChanged,
     required this.onLauncherChanged,
+    required this.temperatureUnit,
+    required this.onTemperatureUnitChanged,
     super.key,
   });
 
@@ -147,6 +162,8 @@ class AppShell extends StatelessWidget {
   final WeatherSource weatherSource;
   final ValueChanged<SupportedLanguage> onLanguageChanged;
   final ValueChanged<String> onLauncherChanged;
+  final TemperatureUnit temperatureUnit;
+  final ValueChanged<TemperatureUnit> onTemperatureUnitChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -172,12 +189,15 @@ class AppShell extends StatelessWidget {
               cityRepository: cityRepository,
               weatherSource: weatherSource,
               launcherId: launcherId,
+              temperatureUnit: temperatureUnit,
             ),
             SettingsScreen(
               copy: copy,
               launcherId: launcherId,
               onLanguageChanged: onLanguageChanged,
               onLauncherChanged: onLauncherChanged,
+              temperatureUnit: temperatureUnit,
+              onTemperatureUnitChanged: onTemperatureUnitChanged,
             ),
           ],
         ),
@@ -190,15 +210,19 @@ class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
     required this.copy,
     required this.launcherId,
+    required this.temperatureUnit,
     required this.onLanguageChanged,
     required this.onLauncherChanged,
+    required this.onTemperatureUnitChanged,
     super.key,
   });
 
   final AppCopy copy;
   final String launcherId;
+  final TemperatureUnit temperatureUnit;
   final ValueChanged<SupportedLanguage> onLanguageChanged;
   final ValueChanged<String> onLauncherChanged;
+  final ValueChanged<TemperatureUnit> onTemperatureUnitChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -206,10 +230,29 @@ class SettingsScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       children: [
         Text(
-          copy.settingsTitle,
+          copy.optionsTitle,
           style: const TextStyle(color: RetroColors.lightest, fontSize: 22),
         ),
         const SizedBox(height: 24),
+        Text(
+          copy.temperatureUnit,
+          style: const TextStyle(color: RetroColors.lightest, fontSize: 16),
+        ),
+        ...TemperatureUnit.values.map(
+          (unit) => RadioListTile<TemperatureUnit>(
+            activeColor: RetroColors.light,
+            title: Text(
+              unit == TemperatureUnit.celsius ? copy.celsius : copy.fahrenheit,
+              style: const TextStyle(color: RetroColors.lightest),
+            ),
+            value: unit,
+            groupValue: temperatureUnit,
+            onChanged: (value) {
+              if (value != null) onTemperatureUnitChanged(value);
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
         Text(
           copy.chooseLanguage,
           style: const TextStyle(color: RetroColors.lightest, fontSize: 16),
@@ -247,6 +290,18 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
         ),
+        const SizedBox(height: 12),
+        Text(
+          copy.customThemes,
+          style: const TextStyle(color: RetroColors.lightest, fontSize: 16),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(copy.importTheme)),
+          ),
+          icon: const Icon(Icons.file_upload),
+          label: Text(copy.importTheme),
+        ),
       ],
     );
   }
@@ -259,6 +314,7 @@ class WeatherScreen extends StatefulWidget {
     required this.cityRepository,
     required this.weatherSource,
     required this.launcherId,
+    required this.temperatureUnit,
     super.key,
   });
 
@@ -267,6 +323,7 @@ class WeatherScreen extends StatefulWidget {
   final CityRepository cityRepository;
   final WeatherSource weatherSource;
   final String launcherId;
+  final TemperatureUnit temperatureUnit;
 
   @override
   State<WeatherScreen> createState() => _WeatherScreenState();
@@ -487,7 +544,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
                               ),
                             ),
                             Text(
-                              _loading ? '--' : '$_temperature C',
+                                _loading
+                                  ? '--'
+                                  : widget.temperatureUnit == TemperatureUnit.celsius
+                                  ? '$_temperature C'
+                                  : '${(_temperature * 9 / 5 + 32).round()} F',
                               style: TextStyle(
                                 color: launcher.foregroundColor,
                                 fontSize: 24,

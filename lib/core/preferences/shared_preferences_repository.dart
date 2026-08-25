@@ -17,6 +17,10 @@ class SharedPreferencesRepository implements PreferencesRepository {
   Future<String?> readLauncher() async => preferences.getString('launcher');
 
   @override
+  Future<String?> readTemperatureUnit() async =>
+      preferences.getString('temperature_unit');
+
+  @override
   Future<String?> readCurrentCityId() async =>
       preferences.getString('current_city');
 
@@ -47,6 +51,10 @@ class SharedPreferencesRepository implements PreferencesRepository {
   @override
   Future<void> writeLauncher(String launcherId) async =>
       preferences.setString('launcher', launcherId);
+
+    @override
+    Future<void> writeTemperatureUnit(String unit) async =>
+      preferences.setString('temperature_unit', unit);
 
   @override
   Future<void> writeCurrentCityId(String cityId) async =>
