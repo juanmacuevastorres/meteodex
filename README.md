@@ -1,6 +1,6 @@
 # meteodex
 
-A new Flutter project.
+Aplicación en Flutter para Android e iOS, widge del tiempo personalizado
 
 ## Getting Started
 
